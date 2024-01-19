@@ -4,9 +4,10 @@ import { useRouter } from "next/router";
 
 import { useState } from "react";
 import Category from "../../components/admin/Category";
-import Footer from "../../components/admin/Footer";
+//import Footer from "../../components/admin/Footer";
 import Order from "../../components/admin/Order";
 import Products from "../../components/admin/Products";
+import Barchart from "../../models/Barchart";
 import { toast } from "react-toastify";
 
 const Profile = () => {
@@ -69,14 +70,14 @@ const Profile = () => {
             <i className="fa fa-ellipsis-h"></i>
             <button className="ml-1">Categories</button>
           </li>
-          <li
+           <li
             className={`border w-full p-3 cursor-pointer hover:bg-primary hover:text-white transition-all ${
               tabs === 3 && "bg-primary text-white"
             }`}
             onClick={() => setTabs(3)}
           >
             <i className="fa fa-window-maximize"></i>
-            <button className="ml-1">Footer</button>
+            <button className="ml-1">Report</button>
           </li>
           <li
             className={`border w-full p-3 cursor-pointer hover:bg-primary hover:text-white transition-all`}
@@ -110,7 +111,7 @@ const Profile = () => {
       {tabs === 0 && <Products />}
       {tabs === 1 && <Order />}
       {tabs === 2 && <Category />}
-      {tabs === 3 && <Footer />}
+      {tabs === 3 && <Barchart />}
     </div>
   );
 };
