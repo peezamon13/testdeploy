@@ -99,7 +99,7 @@ const Index = ({ food }) => {
         <button
           className="btn-primary justify-center item-center"
           onClick={handleClick}
-          
+          disabled={findCart}
           >
           Add to Cart
         </button>

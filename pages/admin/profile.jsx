@@ -71,33 +71,6 @@ const Profile = () => {
           </li>
           <li
             className={`border w-full p-3 cursor-pointer hover:bg-primary hover:text-white transition-all ${
-              tabs === 3 && "bg-primary text-white"
-            }`}
-            onClick={() => setTabs(3)}
-          >
-            <i className="fa fa-window-maximize"></i>
-            <button className="ml-1">Footer</button>
-          </li>
-          <li
-            className={`border w-full p-3 cursor-pointer hover:bg-primary hover:text-white transition-all`}
-            onClick={() => window.open("/", "_blank")}
-          >
-            <i className="fa-solid fa-house"></i>
-            <button className="ml-1">
-              Go to the site <br /> (New Tab)
-            </button>
-          </li>
-          <li
-            className={`border w-full p-3 cursor-pointer hover:bg-primary hover:text-white transition-all`}
-            onClick={() => push("/")}
-          >
-            <i className="fa-solid fa-house"></i>
-            <button className="ml-1">
-              Go to the site <br /> (current tab)
-            </button>
-          </li>
-          <li
-            className={`border w-full p-3 cursor-pointer hover:bg-primary hover:text-white transition-all ${
               tabs === 4 && "bg-primary text-white"
             }`}
             onClick={closeAdminAccount}
@@ -110,7 +83,6 @@ const Profile = () => {
       {tabs === 0 && <Products />}
       {tabs === 1 && <Order />}
       {tabs === 2 && <Category />}
-      {tabs === 3 && <Footer />}
     </div>
   );
 };
