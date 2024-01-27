@@ -4,7 +4,6 @@ import { useRouter } from "next/router";
 
 import { useState } from "react";
 import Category from "../../components/admin/Category";
-import Footer from "../../components/admin/Footer";
 import Order from "../../components/admin/Order";
 import Products from "../../components/admin/Products";
 import { toast } from "react-toastify";
