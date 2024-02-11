@@ -12,7 +12,31 @@ import { toast } from "react-toastify";
 const Login = () => {
   const { data: session } = useSession();
   const { push } = useRouter();
-  const [currentUser, setCurrentUser] = useState();
+  const [currentUser, setCurrentUser] = useState(null);
+
+  useEffect(() => {
+    const getUser = async () => {
+      try {
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/users`);
+        const userData = res.data.find((user) => user.email === session?.user?.email);
+        if (userData) {
+          setCurrentUser(userData);
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    if (session) {
+      getUser();
+    }
+  }, [session]);
+
+  useEffect(() => {
+    if (currentUser) {
+      push("/profile/" + currentUser._id);
+    }
+  }, [currentUser, push]);
 
   const onSubmit = async (values, actions) => {
     const { email, password } = values;
@@ -29,21 +53,6 @@ const Login = () => {
     }
   };
 
-  useEffect(() => {
-    const getUser = async () => {
-      try {
-        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/users`);
-        setCurrentUser(
-          res.data?.find((user) => user.email === session?.user?.email)
-        );
-        session && push("/profile/" + currentUser?._id);
-      } catch (err) {
-        console.log(err);
-      }
-    };
-    getUser();
-  }, [session, push, currentUser]);
-
   const { values, errors, touched, handleSubmit, handleChange, handleBlur } =
     useFormik({
       initialValues: {
@@ -59,7 +68,7 @@ const Login = () => {
       id: 1,
       name: "email",
       type: "email",
-      placeholder: "Your Email Address",
+      placeholder: "อีเมล",
       value: values.email,
       errorMessage: errors.email,
       touched: touched.email,
@@ -68,7 +77,7 @@ const Login = () => {
       id: 2,
       name: "password",
       type: "password",
-      placeholder: "Your Password",
+      placeholder: "รหัสผ่าน",
       value: values.password,
       errorMessage: errors.password,
       touched: touched.password,
@@ -81,7 +90,7 @@ const Login = () => {
         className="flex flex-col items-center my-20 md:w-1/2 w-full mx-auto"
         onSubmit={handleSubmit}
       >
-        <Title addClass="text-[40px] mb-6">Login</Title>
+        <Title addClass="text-[40px] mb-6">เข้าสู่ระบบ</Title>
         <div className="flex flex-col gap-y-3 w-full">
           {inputs.map((input) => (
             <Input
@@ -94,19 +103,11 @@ const Login = () => {
         </div>
         <div className="flex flex-col w-full gap-y-3 mt-6">
           <button className="btn-primary" type="submit">
-            LOGIN
-          </button>
-          <button
-            className="btn-primary !bg-secondary"
-            type="button"
-            onClick={() => signIn("github")}
-          >
-            <i className="fa fa-github mr-2 text-lg"></i>
-            GITHUB
+            เข้าสู่ระบบ
           </button>
           <Link href="/auth/register">
             <span className="text-sm underline cursor-pointer text-secondary">
-              Do you no have a account?
+              คุณยังไม่มีบัญชีของเราใช่ไหม ?
             </span>
           </Link>
         </div>
@@ -119,7 +120,7 @@ export async function getServerSideProps({ req }) {
   const session = await getSession({ req });
 
   const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/users`);
-  const user = res.data?.find((user) => user.email === session?.user.email);
+  const user = res.data.find((user) => user.email === session?.user.email);
   if (session && user) {
     return {
       redirect: {
