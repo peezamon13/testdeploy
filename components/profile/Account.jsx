@@ -1,53 +1,21 @@
-import { useFormik } from "formik";
-import Link from "next/link";
+import React from "react";
 import Input from "../../components/form/Input";
 import Title from "../../components/ui/Title";
-import { loginSchema } from "../../schema/login";
-import { getSession, signIn, useSession } from "next-auth/react";
-import { useRouter } from "next/router";
+import { useFormik } from "formik";
+import { profileSchema } from "../../schema/profile";
 import axios from "axios";
-import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
-const Login = () => {
-  const { data: session } = useSession();
-  const { push } = useRouter();
-  const [currentUser, setCurrentUser] = useState(null);
-
-  useEffect(() => {
-    const getUser = async () => {
-      try {
-        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/users`);
-        const userData = res.data.find((user) => user.email === session?.user?.email);
-        if (userData) {
-          setCurrentUser(userData);
-        }
-      } catch (err) {
-        console.log(err);
-      }
-    };
-
-    if (session) {
-      getUser();
-    }
-  }, [session]);
-
-  useEffect(() => {
-    if (currentUser) {
-      push("/profile/" + currentUser._id);
-    }
-  }, [currentUser, push]);
-
+const Account = ({ user }) => {
   const onSubmit = async (values, actions) => {
-    const { email, password } = values;
-    let options = { redirect: false, email, password };
     try {
-      const res = await signIn("credentials", options);
-      actions.resetForm();
-      toast.success("Login successfully", {
-        position: "bottom-left",
-        theme: "colored",
-      });
+      const res = await axios.put(
+        `${process.env.NEXT_PUBLIC_API_URL}/users/${user._id}`,
+        values
+      );
+      if (res.status === 200) {
+        toast.success("Profile Updated Successfully");
+      }
     } catch (err) {
       console.log(err);
     }
@@ -55,84 +23,92 @@ const Login = () => {
 
   const { values, errors, touched, handleSubmit, handleChange, handleBlur } =
     useFormik({
+      enableReinitialize: true,
       initialValues: {
-        email: "",
-        password: "",
+        fullName: user?.fullName,
+        phoneNumber: user?.phoneNumber,
+        email: user?.email,
+        address: user?.address,
+        job: user?.job,
+        bio: user?.bio,
       },
       onSubmit,
-      validationSchema: loginSchema,
+      validationSchema: profileSchema,
     });
-
   const inputs = [
     {
       id: 1,
+      name: "fullName",
+      type: "text",
+      placeholder: "Your Full Name",
+      value: values.fullName,
+      errorMessage: errors.fullName,
+      touched: touched.fullName,
+    },
+    {
+      id: 2,
+      name: "phoneNumber",
+      type: "number",
+      placeholder: "Your Phone Number",
+      value: values.phoneNumber,
+      errorMessage: errors.phoneNumber,
+      touched: touched.phoneNumber,
+    },
+    {
+      id: 3,
       name: "email",
       type: "email",
-      placeholder: "อีเมล",
+      placeholder: "Your Email Address",
       value: values.email,
       errorMessage: errors.email,
       touched: touched.email,
     },
     {
-      id: 2,
-      name: "password",
-      type: "password",
-      placeholder: "รหัสผ่าน",
-      value: values.password,
-      errorMessage: errors.password,
-      touched: touched.password,
+      id: 4,
+      name: "address",
+      type: "text",
+      placeholder: "Your Address",
+      value: values.address,
+      errorMessage: errors.address,
+      touched: touched.address,
+    },
+    {
+      id: 5,
+      name: "job",
+      type: "text",
+      placeholder: "Your Job",
+      value: values.job,
+      errorMessage: errors.job,
+      touched: touched.job,
+    },
+    {
+      id: 6,
+      name: "bio",
+      type: "text",
+      placeholder: "Your Bio",
+      value: values.bio,
+      errorMessage: errors.bio,
+      touched: touched.bio,
     },
   ];
-
   return (
-    <div className="container mx-auto">
-      <form
-        className="flex flex-col items-center my-20 md:w-1/2 w-full mx-auto"
-        onSubmit={handleSubmit}
-      >
-        <Title addClass="text-[40px] mb-6">เข้าสู่ระบบ</Title>
-        <div className="flex flex-col gap-y-3 w-full">
-          {inputs.map((input) => (
-            <Input
-              key={input.id}
-              {...input}
-              onChange={handleChange}
-              onBlur={handleBlur}
-            />
-          ))}
-        </div>
-        <div className="flex flex-col w-full gap-y-3 mt-6">
-          <button className="btn-primary" type="submit">
-            เข้าสู่ระบบ
-          </button>
-          <Link href="/auth/register">
-            <span className="text-sm underline cursor-pointer text-secondary">
-              คุณยังไม่มีบัญชีของเราใช่ไหม ?
-            </span>
-          </Link>
-        </div>
-      </form>
-    </div>
+    <form className="lg:p-8 flex-1 lg:mt-0 mt-5" onSubmit={handleSubmit}>
+      <Title addClass="text-[40px]">Account Settings</Title>
+      <div className="grid lg:grid-cols-2 grid-cols-1 gap-4 mt-4">
+        {inputs.map((input) => (
+          <Input
+            key={input.id}
+            {...input}
+            onBlur={handleBlur}
+            onChange={handleChange}
+          />
+        ))}
+      </div>
+      <button className="btn-primary mt-4" type="submit">
+        Update
+      </button>
+    </form>
   );
 };
 
-export async function getServerSideProps({ req }) {
-  const session = await getSession({ req });
-
-  const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/users`);
-  const user = res.data.find((user) => user.email === session?.user.email);
-  if (session && user) {
-    return {
-      redirect: {
-        destination: "/profile/" + user._id,
-        permanent: false,
-      },
-    };
-  }
-
-  return {
-    props: {},
-  };
-}
-
-export default Login;
+export default Account;
